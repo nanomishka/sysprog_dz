@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 struct Ttime {
 	int year;
@@ -15,6 +16,11 @@ int greater(struct Ttime tr1, struct Ttime tr2) {
 	return tr1.year > tr2.year ||
 		tr1.year == tr2.year && tr1.month > tr2.month ||
 		tr1.year == tr2.year && tr1.month == tr2.month && tr1.day > tr2.day;
+}
+
+struct Ttime neighbor(struct Ttime tr1) {
+	tr1.day--;
+	return tr1;
 }
 
 void selSort(struct Trip *array, int n) {
@@ -41,43 +47,52 @@ void print(struct Trip data) {
 	printf("%02d\n",data.finish.day);
 }
 
-int main() {
-	int size = 2;
-	struct Trip *trips = (struct Trip *) calloc(size, sizeof(struct Trip));
-	FILE *file;
-	file = fopen("data","rt");
-	char m[256];
-	int i = 0;
-	while (fscanf(file,"%d-%d-%d %d-%d-%d", 
-		&trips[i].start.year, &trips[i].start.month, &trips[i].start.day,
-		&trips[i].finish.year, &trips[i].finish.month, &trips[i].finish.day) != EOF) {
-		i++;
-		if ( i == size - 1) {
-			size *= 2;
-			trips = (struct Trip *) realloc (trips, size* sizeof(struct Trip));
+int main(int argc, char** argv) {
+	if ( argc < 2 ) {
+		printf("The first argument have to be a name of file\n");
+		return 0;
+	} else {
+		FILE *file;
+		file = fopen(argv[1],"rt");
+		if ( !file ) {
+			printf("File doesn't exist\n");
+			return 0;
 		}
+		int size = 2;
+		struct Trip *trips = (struct Trip *) calloc(size, sizeof(struct Trip));
+		int i = 0;
+		while (fscanf(file,"%d-%d-%d %d-%d-%d", 
+			&trips[i].start.year, &trips[i].start.month, &trips[i].start.day,
+			&trips[i].finish.year, &trips[i].finish.month, &trips[i].finish.day) != EOF) {
+			i++;
+			if ( i == size - 1) {
+				size *= 2;
+				trips = (struct Trip *) realloc (trips, size* sizeof(struct Trip));
+			}
+		}
+		int n = i;
+
+		selSort(&trips[0],n);
+
+		/*for (i = 0; i < n; i++) {
+			print(trips[i]);
+		}
+		printf("%d\n", n);
+		*/
+
+		struct Trip current = trips[0];
+		for (i = 1; i < n; i++) {
+			if (!greater(neighbor(trips[i].start), current.finish)) {
+				if (greater(trips[i].finish, current.finish))
+					current.finish = trips[i].finish;
+			} else {
+				print(current);
+				current = trips[i];
+			}	
+		}
+		print(current);
+		free(trips);
+		fclose(file);
+		return 0;
 	}
-	int n = i;
-
-	selSort(&trips[0],n);
-
-	for (i = 0; i < n; i++) {
-		print(trips[i]);
-	}
-	printf("%d\n", n);
-
-	struct Trip current = trips[0];
-	for (i = 1; i < n; i++) {
-		if (!greater(trips[i].start, current.finish)) {
-			if (greater(trips[i].finish, current.finish))
-				current.finish = trips[i].finish;
-		} else {
-			print(current);
-			current = trips[i];
-		}	
-	}
-	print(current);
-
-	fclose(file);
-	return 0;
 }
