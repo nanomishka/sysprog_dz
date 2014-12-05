@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>  
 
 struct Ttime {
 	int year;
@@ -19,7 +20,17 @@ int greater(struct Ttime tr1, struct Ttime tr2) {
 }
 
 struct Ttime neighbor(struct Ttime tr1) {
-	tr1.day--;
+	time_t rawtime;  
+	struct tm * stTimeInfo;   
+	time ( &rawtime );  
+	stTimeInfo = localtime ( &rawtime );  
+	stTimeInfo->tm_year = tr1.year - 1900;  
+	stTimeInfo->tm_mon = tr1.month - 1;  
+	stTimeInfo->tm_mday = tr1.day-1;  
+	mktime ( stTimeInfo );  
+	tr1.year = stTimeInfo->tm_year+1900;
+	tr1.month = stTimeInfo->tm_mon+1;
+	tr1.day = stTimeInfo->tm_mday;
 	return tr1;
 }
 
