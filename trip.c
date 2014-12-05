@@ -69,6 +69,9 @@ int main(int argc, char** argv) {
 			printf("File doesn't exist\n");
 			return 0;
 		}
+		clock_t begin, end;
+		double time_spent;
+		begin = clock();
 		int size = 2;
 		struct Trip *trips = (struct Trip *) calloc(size, sizeof(struct Trip));
 		int i = 0;
@@ -85,12 +88,6 @@ int main(int argc, char** argv) {
 
 		selSort(&trips[0],n);
 
-		/*for (i = 0; i < n; i++) {
-			print(trips[i]);
-		}
-		printf("%d\n", n);
-		*/
-
 		struct Trip current = trips[0];
 		for (i = 1; i < n; i++) {
 			if (!greater(neighbor(trips[i].start), current.finish)) {
@@ -104,6 +101,9 @@ int main(int argc, char** argv) {
 		print(current);
 		free(trips);
 		fclose(file);
+		end = clock();
+		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		printf("Time of program: %f\n", time_spent);
 		return 0;
 	}
 }
